@@ -9,17 +9,109 @@
 import UIKit
 
 class ViewController: UIViewController {
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+    
+    // Instance variable to clear screen when not needed.
+    var displayInUse = false
+    
+    // Instance variable to hold save the screen value for operations.
+    var beforeDisplay = String()
+    
+    
+    // Instance variable to hold the operator touched last.
+    var currentOperator = String()
+    
+    
+    // Operators buttons function
+    @IBAction func touchOperations(_ sender: UIButton) {
+        currentOperator =  sender.currentTitle!
+        displayInUse = false
+        beforeDisplay =  DisplayCalculator!.text!
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    
+    // Equal button function
+    @IBAction func touchEqual(_ sender: UIButton) {
+        let firstTerm = Double (beforeDisplay)!
+        let secondTerm = Double (DisplayCalculator!.text!)!
+        displayInUse = false
+        
+        switch currentOperator {
+        case "+":
+            DisplayCalculator!.text! = String( firstTerm + secondTerm )
+        case "-":
+            DisplayCalculator!.text! = String( firstTerm - secondTerm)
+        case "*":
+            DisplayCalculator!.text! = String( firstTerm * secondTerm )
+        case "/":
+            DisplayCalculator!.text! = String( firstTerm / secondTerm )
+        default: break
+        }
     }
-
-
+    
+    // Alpha digits functions
+    @IBAction func touchDigit(_ sender: UIButton) {
+        let digit = sender.currentTitle!
+        let textCurrentlyInDisplay = DisplayCalculator!.text!
+        
+        if displayInUse
+        {
+            DisplayCalculator!.text = textCurrentlyInDisplay + digit
+        }
+        else
+        {
+            DisplayCalculator!.text! = digit
+            displayInUse = true
+        }
+    }
+    
+    // Display bar for calculator.
+    @IBOutlet weak var DisplayCalculator: UILabel!
+    
+    // Numercal Value for the display bar to use. Auto updated to value.
+    var displayValue: Double
+    {
+        get
+        {
+            return Double (DisplayCalculator!.text!)!
+        }
+        set
+        {
+            DisplayCalculator!.text! = String(newValue)
+        }
+    }
+    
+    private var brain = CalculatorBrain()
+    
+    // Operations for π and √ touch buttons.
+    @IBAction func touchValue(_ sender: UIButton)
+    {
+        if displayInUse
+        {
+            brain.setOperand(displayValue)
+            displayInUse = false
+        }
+        
+        if let operationSymbol = sender.currentTitle
+        {
+            brain.performOperation(operationSymbol)
+        }
+        
+        if let result = brain.result
+        {
+            displayValue = result
+        }
+    }
+    
+    
+    @IBAction func touchClear(_ sender: UIButton) {
+        displayInUse = false
+        beforeDisplay = "0"
+        currentOperator = ""
+        DisplayCalculator!.text! = "0"
+        
+    }
+    
+    //
+    
+    
 }
 
